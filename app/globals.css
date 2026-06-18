@@ -1,26 +1,163 @@
 @import "tailwindcss";
-
+/* ---------------------------------------------------------
+   Design tokens
+   White-themed palette with one AI/brand accent (indigo) and
+   two warm secondary accents (coral, amber) borrowed from the
+   node colors in the diagramming canvas itself.
+--------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink: #14141a;
+  --ink-soft: #5c5c68;
+  --ink-faint: #9b9ba6;
+  --line: #e7e6e1;
+  --paper: #f7f7f4;
+
+  --accent: #4f46e5;
+  --accent-dark: #3f37c9;
+  --accent-soft: #eeedfc;
+
+  --coral: #ff6b4a;
+  --coral-soft: #ffeee8;
+
+  --amber: #f2a93b;
+  --amber-soft: #fff6e5;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.font-display {
+  font-family: var(--font-display), ui-sans-serif, sans-serif;
+}
+
+.font-mono {
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Dot-grid backdrops, used behind the hero canvas and the CTA band */
+.bg-dot-grid {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(20, 20, 26, 0.1) 1px,
+    transparent 0
+  );
+  background-size: 20px 20px;
+}
+
+.bg-dot-grid-light {
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(255, 255, 255, 0.18) 1px,
+    transparent 0
+  );
+  background-size: 20px 20px;
+}
+
+/* ---------------------------------------------------------
+   Scroll reveal — used by components/ui/Reveal.tsx
+--------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------------------------------------------------------
+   Ambient motion
+--------------------------------------------------------- */
+
+/* Gentle float for the hero canvas panel */
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* Flowing dashes along diagram edges, like data moving through the system */
+@keyframes dash-flow {
+  to {
+    stroke-dashoffset: -120;
+  }
+}
+.animate-dash {
+  animation: dash-flow 3.5s linear infinite;
+}
+
+/* Pulsing status dot (collaborators online, AI generating) */
+@keyframes pulse-dot {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.animate-pulse-dot {
+  animation: pulse-dot 1.4s ease-in-out infinite;
+}
+
+/* Blinking caret in the hero canvas's fake input */
+@keyframes blink-caret {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+.animate-blink {
+  animation: blink-caret 1s step-end infinite;
+}
+
+/* Slow background drift for the glow blobs in the CTA band */
+@keyframes drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-20px, -14px);
+  }
+}
+.animate-drift {
+  animation: drift 16s ease-in-out infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
