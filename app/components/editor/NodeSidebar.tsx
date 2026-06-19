@@ -8,7 +8,7 @@ interface Props{
 
 export default function NodeSidebar({onAddNode,}:Props){
     return(
-        <div className="w-64 border-r p-4">
+        <div className="w-64 border-r p-4 hidden md:flex md:flex-col">
             <h2 className="font-bold mb-4">
                 Components
             </h2>

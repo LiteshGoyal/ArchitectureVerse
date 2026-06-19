@@ -6,8 +6,7 @@ import { Menu, X } from "lucide-react";
 import Container from "./ui/Container";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import {  usePathname } from "next/navigation";
 
 const LINKS = [
   { label: "Features", href: "/#features" },
@@ -20,8 +19,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const { logout } = useAuth();
-  const params = useParams();
-  const router = useRouter()
+  const pathName = usePathname()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -29,6 +27,11 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+  
+  if (pathName.startsWith("/projects/")){
+    return null;
+  }
+
 
   return (
     <header
@@ -63,12 +66,15 @@ export default function Navbar() {
           </div>
           {user ? (
             <div className=" flex gap-4">
-            <Link
+              {!pathName.includes("/dashboard") && (
+
+                <Link
                 href="/dashboard"
                 className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
-              >
+                >
                 Dashboard
               </Link>
+              )}
 
             <button
                 onClick={()=> {

@@ -50,10 +50,8 @@ export default function ProjectPage() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="border-b bg-white p-4">
-        {/* <h1 className="text-2xl font-bold">{project.name}</h1> */}
 
-        {isEditing ? (
+        {/* {isEditing ? (
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -71,19 +69,11 @@ export default function ProjectPage() {
           />
         ) : (
           <p className="text-gray-600 mt-1">{project.description}</p>
-        )}
+        )} */}
 
-        <div className="mt-3 text-sm text-gray-500 flex gap-6">
-          <span>
-            Created: {new Date(project.created_at).toLocaleDateString()}
-          </span>
 
-          <span>
-            Updated: {new Date(project.updated_at).toLocaleDateString()}
-          </span>
-        </div>
 
-        <div className="mt-4 flex gap-2">
+        {/* <div className="mt-4 flex gap-2">
           {isEditing ? (
             <button onClick={handleUpdateProject} className="border px-4 py-2">
               Save Project
@@ -96,8 +86,7 @@ export default function ProjectPage() {
               Edit Project
             </button>
           )}
-        </div>
-      </div>
+        </div> */}
 
       <div className="flex-1">
         <ArchitectureEditor projectId={params.id as string} projectName={project.name}/>
