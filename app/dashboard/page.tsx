@@ -7,7 +7,7 @@ import Link from "next/link";
 import { getProjects, createProject, deleteProject } from "@/services/projects";
 import { Project } from "@/types/project";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
-import { Trash } from "lucide-react";
+import { Trash, MoveRight } from "lucide-react";
 import toast from "react-hot-toast";
 
 
@@ -105,7 +105,7 @@ export default function Dashboard() {
 
           <div className="space-y-4">
             {projects.map((project) => (
-              <Link href={`/projects/${project.id}`}
+              <div
                 key={project.id}
                 className="flex flex-col overflow-hidden md:w-[500px] transition-all duration-300 bg-white border border-gray-200 hover:border-l-4 hover:border-l-[#4f46e5] rounded-md hover:shadow-xl"
               >
@@ -129,8 +129,9 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-end  justify-right">
                     <div className="sm:flex sm:items-center lg:flex-col xl:flex-row lg:items-start xl:items-center">
+                      
                       <button
-                        className="flex border border-1 rounded-xl p-2 m-3 hover:bg-gray-200 cursor-pointer duration-200 transition-all"
+                        className="flex  m-3 cursor-pointer duration-200 transition-all hover:scale-105 hover:text-gray-500"
                         onClick={() => handleDeleteProject(project.id)}
                       >
                         <Trash />
@@ -139,8 +140,11 @@ export default function Dashboard() {
                   </div>
                   {/* </div> */}
                 </div>
+                <div className="flex justify-between">
                 <div className="text-gray-700 p-2">Created at: <span className="text-gray-500">{project.created_at.split("T")[0]}</span></div>
-              </Link>
+                <Link href={`projects/${project.id}`} className="text-gray-500 p-2 flex space-x-2 hover:text-gray-700">Open <MoveRight /> </Link>
+                </div>
+              </div>
             ))}
           </div>
         </div>
