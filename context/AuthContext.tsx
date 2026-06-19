@@ -1,6 +1,7 @@
 'use client'
 
 import { getCurrentUser } from "@/services/user"
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
 interface User {
@@ -33,10 +34,12 @@ export function AuthProvider({children,}:{children:ReactNode}){
             setUser(null)
         }
     }
+    const router = useRouter()
 
     const logout = ()=>{
         localStorage.removeItem("token")
         setUser(null)
+        router.push("/login")
 
     }
 

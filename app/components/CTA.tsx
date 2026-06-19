@@ -39,12 +39,12 @@ export default function CTA() {
                 className="transition-transform group-hover:translate-x-0.5"
               />
             </Link>
-            <a
-              href="#features"
+            <Link
+              href="/#features"
               className="inline-flex items-center gap-2 rounded-full border border-white/30 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#4F46E5]"
             >
               Browse templates
-            </a>
+            </Link>
           </div>
           <p className="font-mono mt-5 text-xs text-white/60">
             Free for solo projects · No credit card required

@@ -6,7 +6,7 @@ import { ArrowRight, ChevronDown } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="relative overflow-hidden pb-24 pt-40 lg:pb-32 lg:pt-48">
+    <section className="relative overflow-hidden pb-24 pt-48 lg:pb-32 lg:pt-48">
       <div className="bg-dot-grid pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]" />
 
       <Container>
@@ -48,13 +48,13 @@ export default function Hero() {
                     className="transition-transform group-hover:translate-x-0.5"
                   />
                 </Link>
-                <a
-                  href="#features"
+                <Link
+                  href="/#features"
                   className="inline-flex items-center gap-2 rounded-full border border-[#E7E6E1] bg-white px-6 py-3 text-sm font-medium text-[#14141A] transition-colors hover:border-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2"
                 >
                   See what it can do
                   <ChevronDown size={16} />
-                </a>
+                </Link>
               </div>
               <p className="font-mono mt-5 text-xs text-[#9B9BA6]">
                 Free for solo projects · No credit card required

@@ -6,6 +6,11 @@ import Link from "next/link";
 
 import { getProjects, createProject, deleteProject } from "@/services/projects";
 import { Project } from "@/types/project";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+import { Trash } from "lucide-react";
+import toast from "react-hot-toast";
+
+
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -17,7 +22,7 @@ export default function Dashboard() {
   const fetchProjects = async () => {
     try {
       const data = await getProjects();
-      setProjects(data);
+      setProjects(data.toReversed());
     } catch (error) {
       console.error(error);
     } finally {
@@ -35,16 +40,20 @@ export default function Dashboard() {
       setDescription("");
 
       fetchProjects();
+      toast.success(`Project ${name} created`)
     } catch (error) {
       console.error(error);
+      toast.error(`Failed to create project ${name}`)
     }
   };
   const handleDeleteProject = async (projectId: number) => {
     try {
       await deleteProject(projectId);
       fetchProjects();
+      toast.success("Deleted project")
     } catch (error) {
       console.error(error);
+      toast.error("Failed to delete")
     }
   };
 
@@ -53,46 +62,89 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-2">Welcome {user?.username}</h1>
+    <ProtectedRoute>
+      <div className="relative mx-auto p-8 pt-48 font-display">
+        <h1 className="text-5xl font-bold mb-2">
+          Welcome back, {user?.username}
+        </h1>
 
-      <p className="mb-8">Manage your architectures</p>
+        <p className="mb-8 text-xl text-gray-500">
+          Here&apos;s what&apos;s happening with you architectures
+        </p>
+        <hr />
+        <br />
+        <div className="flex flex-col md:flex-row space-x-8">
+          <div className="md:sticky top-0 self-start">
+            <h1 className="text-3xl font-semibold">Start new Project</h1>
+            <p className="mb-8 text-md text-gray-500">
+              Name it and describe your system — generate the rest with AI
+            </p>
+            <div className="space-y-4 mb-8">
+              <input
+                className="border p-2 w-full border-gray-300"
+                placeholder="Project Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
 
-      <div className="space-y-4 mb-8">
-        <input
-          className="border p-2 w-full"
-          placeholder="Project Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+              <textarea
+                className="border p-2 w-full border-gray-300"
+                placeholder="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
 
-        <textarea
-          className="border p-2 w-full"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-
-        <button onClick={handleCreateProject} className="border px-4 py-2">
-          Create Project
-        </button>
-      </div>
-
-      <div className="space-y-4">
-        {projects.map((project) => (
-          <div key={project.id} className="border p-4 rounded">
-            <Link href={`/projects/${project.id}`}>
-              <h2 className="font-semibold">{project.name}</h2>
-            </Link>
-
-            <p>{project.description}</p>
-
-            <button onClick={() => handleDeleteProject(project.id)}>
-              Delete
-            </button>
+              <button
+                onClick={handleCreateProject}
+                className="border px-4 py-2 cursor-pointer hover:bg-[#4f46e5] hover:text-white rounded-md"
+              >
+                Create Project
+              </button>
+            </div>
           </div>
-        ))}
+
+          <div className="space-y-4">
+            {projects.map((project) => (
+              <Link href={`/projects/${project.id}`}
+                key={project.id}
+                className="flex flex-col overflow-hidden md:w-[500px] transition-all duration-300 bg-white border border-gray-200 hover:border-l-4 hover:border-l-[#4f46e5] rounded-md hover:shadow-xl"
+              >
+                <div className="flex p-4 space-x-4 justify-between">
+                  <div>
+                    <p className="text-3xl bg-[#4F46E5] text-white p-4 rounded-full">
+                      {project.name[0].toUpperCase()}
+                    </p>
+                  </div>
+                  <div className="">
+                    <div>
+                      <h1 className="text-2xl font-bold text-gray-900">
+                        {project.name}
+                      </h1>
+                    </div>
+                    <h3 className="text-sm sm:text-base  text-gray-600 mt-2.5 flex-1 hover:text-[#4F46E5] transition-all duratin-200">
+                      <p title="">
+                        {project.description}
+                      </p>
+                    </h3>
+                  </div>
+                  <div className="flex items-end  justify-right">
+                    <div className="sm:flex sm:items-center lg:flex-col xl:flex-row lg:items-start xl:items-center">
+                      <button
+                        className="flex border border-1 rounded-xl p-2 m-3 hover:bg-gray-200 cursor-pointer duration-200 transition-all"
+                        onClick={() => handleDeleteProject(project.id)}
+                      >
+                        <Trash />
+                      </button>
+                    </div>
+                  </div>
+                  {/* </div> */}
+                </div>
+                <div className="text-gray-700 p-2">Created at: <span className="text-gray-500">{project.created_at.split("T")[0]}</span></div>
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </ProtectedRoute>
   );
 }

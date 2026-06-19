@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
   },
   {
     q: "Can my team work on the same diagram?",
-    a: "Yes. Invite teammates to a diagram and see their edits, comments, and cursors update in real time.",
+    a: "Not yet, but soon you will be able to work with your team on the same diagram. Work in progress.",
   },
   {
     q: "What can I export?",
@@ -37,7 +37,7 @@ const FAQ_ITEMS = [
 ];
 
 export default function FAQs() {
-  const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <section id="faq" className="bg-white py-28">
@@ -79,9 +79,11 @@ export default function FAQs() {
                     className="grid overflow-hidden transition-[grid-template-rows] duration-300 ease-out"
                     style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
                   >
-                    <p className="min-h-0 pb-5 text-sm leading-relaxed text-[#5C5C68] sm:text-base">
-                      {item.a}
-                    </p>
+                    <div className="min-h-0">
+                      <p className="pb-5 text-sm leading-relaxed text-[#5C5C68] sm:text-base">
+                        {item.a}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </Reveal>

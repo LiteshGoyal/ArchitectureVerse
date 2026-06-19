@@ -4,16 +4,24 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import Container from "./ui/Container";
+import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const LINKS = [
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Features", href: "/#features" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const { logout } = useAuth();
+  const params = useParams();
+  const router = useRouter()
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -24,58 +32,72 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={` font-display absolute inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
           ? "border-b border-[#E7E6E1] bg-white/90 backdrop-blur-md"
           : "border-b border-transparent bg-transparent"
       }`}
     >
       <Container>
-        <nav className="flex h-[72px] items-center justify-between">
+        <nav className="flex py-4 items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5">
-            <svg width="28" height="28" viewBox="0 0 30 30" fill="none" aria-hidden="true">
-              <path
-                d="M15 4 L25 24 H5 Z"
-                stroke="#4F46E5"
-                strokeWidth="1.6"
-                strokeLinejoin="round"
-                opacity="0.35"
-              />
-              <circle cx="15" cy="4" r="3" fill="#4F46E5" />
-              <circle cx="5" cy="24" r="3" fill="#FF6B4A" />
-              <circle cx="25" cy="24" r="3" fill="#F2A93B" />
-            </svg>
-            <span className="font-display text-lg font-semibold tracking-tight text-[#14141A]">
-              Architecture<span className="text-[#4F46E5]">Verse</span>
-            </span>
+            <Image src="/logo.png" alt="logo" width={200} height={20} />
           </Link>
 
-          <div className="hidden items-center gap-8 lg:flex">
+          <div
+            className={`relative inset-0 z-50 hidden items-center gap-16 lg:flex ${
+              scrolled
+                ? "border-b border-[#E7E6E1] bg-white/90 backdrop-blur-md"
+                : "border-b border-transparent bg-transparent"
+            }`}
+          >
             {LINKS.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
-                className="rounded-sm text-sm text-[#5C5C68] transition-colors hover:text-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2"
+                className="rounded-sm text-sm text-[#5C5C68] transition-colors hover:text-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
               >
                 {link.label}
               </a>
             ))}
           </div>
+          {user ? (
+            <div className=" flex gap-4">
+            <Link
+                href="/dashboard"
+                className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+              >
+                Dashboard
+              </Link>
 
-          <div className="hidden items-center gap-4 lg:flex">
-            <Link
-              href="/login"
-              className="rounded-sm text-sm font-medium text-[#5C5C68] transition-colors hover:text-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2"
-            >
-              Log in
-            </Link>
-            <Link
-              href="/signup"
-              className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2"
-            >
-              Get started
-            </Link>
-          </div>
+            <button
+                onClick={()=> {
+                  logout()
+                }}
+                className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+              >
+                Logout
+              </button>
+
+
+
+              </div>
+          ) : (
+            <div className="hidden items-center gap-4 lg:flex">
+              <Link
+                href="/login"
+                className="rounded-sm text-sm font-medium text-[#5C5C68] transition-colors hover:text-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+              >
+                Log in
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+              >
+                Get started
+              </Link>
+            </div>
+          )}
 
           <button
             type="button"

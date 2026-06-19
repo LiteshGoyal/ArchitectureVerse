@@ -4,6 +4,9 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { Toaster } from "react-hot-toast";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import Navbar from "./components/Navbar";
+
+
 // Display face — used with restraint, for headlines and the wordmark.
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -43,6 +46,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <AuthProvider>
+          <Navbar />
           {children}
           <Toaster position="top-right" />
         </AuthProvider>

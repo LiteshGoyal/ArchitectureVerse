@@ -124,8 +124,8 @@ export default function HeroCanvas() {
       </div>
 
       {/* fake "describe architecture" input, echoing the real toolbar */}
-      <div className="flex items-center gap-2 border-b border-[#E7E6E1] px-4 py-3">
-        <div className="flex-1 truncate rounded-lg border border-[#E7E6E1] bg-[#FAFAF8] px-3 py-2 text-sm text-[#14141A]">
+      <div className="flex flex-col md:flex-row items-center gap-2 border-b border-[#E7E6E1] px-4 py-3">
+        <div className="flex-1 truncate min-w-0 max-w-[300px] md:max-w-[1500px] rounded-lg border border-[#E7E6E1] bg-[#FAFAF8] px-3 py-2 text-sm text-[#14141A]">
           {typed || "Describe architecture\u2026"}
           <span className="animate-blink">|</span>
         </div>
