@@ -501,7 +501,7 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       });
     }, 0);
   };
-  const onEdgesDelete: OnNodesDelete = () => {
+  const onEdgesDelete: OnEdgesDelete = () => {
     setTimeout(() => {
       broadcastDiagram(nodes, edges);
 
