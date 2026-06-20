@@ -17,6 +17,7 @@ import "@xyflow/react/dist/style.css";
 
 import * as htmlToImage from "html-to-image";
 
+import { debounce } from "lodash";
 import { getDiagram, saveDiagram } from "@/services/diagram";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import NodeSidebar from "./NodeSidebar";
@@ -249,6 +250,8 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     "saved",
   );
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const ws = useRef<WebSocket | null>(null);
+  const isRemoteUpdate = useRef(false);
   const [documentation, setDocumentation] = useState("");
   const [review, setReview] = useState("");
   const [reviewLoading, setReviewLoading] = useState(false);
@@ -283,6 +286,28 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     setExplanation("");
   };
 
+  const debouncedBroadcast = useRef<any>(null);
+
+  useEffect(() => {
+    debouncedBroadcast.current = debounce(
+      (currentNodes: Node[], currentEdges: Edge[]) => {
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          ws.current.send(
+            JSON.stringify({
+              nodes: currentNodes,
+              edges: currentEdges,
+            }),
+          );
+        }
+      },
+      300,
+    );
+
+    return () => {
+      debouncedBroadcast.current?.cancel();
+    };
+  }, []);
+
   const saveSnapshot = (currentNodes: Node[], currentEdges: Edge[]) => {
     const snapshot = {
       nodes: structuredClone(currentNodes),
@@ -297,6 +322,12 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     const snapshot = history[historyIndex];
     setNodes(snapshot.nodes);
     setEdges(snapshot.edges);
+    broadcastDiagram(snapshot.nodes, snapshot.edges);
+
+    saveDiagram(projectId, {
+      nodes: snapshot.nodes,
+      edges: snapshot.edges,
+    });
     setHistoryIndex((prev) => prev - 1);
   };
 
@@ -364,7 +395,7 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       return;
     }
     setSaveStatus("unsaved");
-    const timeout = setTimeout(() => autoSave(), 2000);
+    const timeout = setTimeout(() => autoSave(), 4000);
     return () => clearTimeout(timeout);
   }, [nodes, edges]);
 
@@ -373,6 +404,64 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     loadChatHistory();
     loadReviewHistory();
   }, [projectId]);
+
+  useEffect(() => {
+    const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+    ws.current = new WebSocket(
+      `${process.env.NEXT_PUBLIC_WS_URL}/ws/diagram/${projectId}/`,
+    );
+
+    ws.current.onopen = () => {
+      console.log("Webscoket sonnected");
+    };
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      isRemoteUpdate.current = true;
+
+      if (data.nodes && data.edges) {
+        setNodes(data.nodes);
+        setEdges(data.edges);
+      }
+
+      setTimeout(() => {
+        isRemoteUpdate.current = false;
+      }, 100);
+    };
+
+    ws.current.onclose = () => {
+      console.log("Websocket disconnected");
+    };
+
+    return () => {
+      ws.current?.close();
+    };
+  }, [projectId]);
+
+  const handleNodeDragStop = () => {
+    if (isRemoteUpdate.current) return;
+
+    broadcastDiagram(nodes, edges);
+  };
+
+  const broadcastDiagram = (currentNodes: Node[], currentEdges: Edge[]) => {
+    if (isRemoteUpdate.current) return;
+
+    debouncedBroadcast.current?.(currentNodes, currentEdges);
+  };
+  // useEffect(() => {
+  //   return () => {
+  //     debouncedBroadcast.cancel();
+  //   };
+  // }, []);
+
+  const handleNodesChange = (changes: any) => {
+    onNodesChange(changes);
+  };
+
+  const handleEdgesChange = (changes: any) => {
+    onEdgesChange(changes);
+  };
 
   const handleAddCustomNode = () => {
     if (!nodeName.trim()) return;
@@ -389,22 +478,54 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       data: { label },
     };
     saveSnapshot(nodes, edges);
-    setNodes((nds) => [...nds, newNode]);
+    setNodes((nds) => {
+      const updated = [...nds, newNode];
+
+      broadcastDiagram(updated, edges);
+      saveDiagram(projectId, {
+        nodes: updated,
+        edges,
+      });
+
+      return updated;
+    });
   };
 
-  const onNodesDelete: OnNodesDelete = (deletedNodes) => {
-    console.log("Deleted Nodes: ", deletedNodes);
-  };
+  const onNodesDelete: OnNodesDelete = () => {
+    setTimeout(() => {
+      broadcastDiagram(nodes, edges);
 
-  const onEdgesDelete: OnEdgesDelete = (deletedEdges) => {
-    console.log("Deleted Edges: ", deletedEdges);
+      saveDiagram(projectId, {
+        nodes,
+        edges,
+      });
+    }, 0);
+  };
+  const onEdgesDelete: OnNodesDelete = () => {
+    setTimeout(() => {
+      broadcastDiagram(nodes, edges);
+
+      saveDiagram(projectId, {
+        nodes,
+        edges,
+      });
+    }, 0);
   };
 
   const nodeTypes = useMemo(() => ({ architectureNode: ArchitectureNode }), []);
 
   const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    [],
+    (params: any) => {
+      setEdges((eds) => {
+        const updated = addEdge(params, eds);
+        setTimeout(() => {
+          broadcastDiagram(nodes, updated);
+        }, 0);
+
+        return updated;
+      });
+    },
+    [nodes],
   );
 
   const handleAutoArrange = () => {
@@ -415,6 +536,12 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     saveSnapshot(nodes, edges);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
+    broadcastDiagram(layoutedNodes, layoutedEdges);
+
+    saveDiagram(projectId, {
+      nodes: layoutedNodes,
+      edges: layoutedEdges,
+    });
     toast.success("Nodes have been arranged");
   };
 
@@ -437,18 +564,30 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     }
   };
 
-  const applyTemplate = (templateId: string) => {
+  const applyTemplate = async (templateId: string) => {
     if (
       nodes.length > 0 &&
       !window.confirm("This will replace the current diagram. Continue?")
     )
       return;
+
     const template = architectureTemplates.find((t) => t.id === templateId);
+
     if (!template) return;
+
     clearAnalysis();
     saveSnapshot(nodes, edges);
+
     setNodes(template.nodes);
     setEdges(template.edges);
+
+    broadcastDiagram(template.nodes, template.edges);
+
+    await saveDiagram(projectId, {
+      nodes: template.nodes,
+      edges: template.edges,
+    });
+
     toast.success("Template applied");
   };
 
@@ -512,6 +651,11 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       saveSnapshot(nodes, edges);
       setNodes(generatedNodes);
       setEdges(generatedEdges);
+      broadcastDiagram(generatedNodes, generatedEdges);
+      await saveDiagram(projectId, {
+        nodes: generatedNodes,
+        edges: generatedEdges,
+      });
       toast.success("Architecture generated successfully");
     } catch (error) {
       console.error(error);
@@ -605,7 +749,7 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       position: { x: Math.random() * 500, y: Math.random() * 500 },
       data: { label: improvement.label },
     };
-    setNodes((nds) => [...nds, newNode]);
+    // setNodes((nds) => [...nds, newNode]);
     if (!improvement.connect_to) return;
     const newEdges: Edge[] = [];
     improvement.connect_to.forEach((targetLabel) => {
@@ -621,7 +765,19 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
         });
       }
     });
-    setEdges((eds) => [...eds, ...newEdges]);
+    // setEdges((eds) => [...eds, ...newEdges]);
+    const updatedNodes = [...nodes, newNode];
+    const updatedEdges = [...edges, ...newEdges];
+
+    setNodes(updatedNodes);
+    setEdges(updatedEdges);
+
+    broadcastDiagram(updatedNodes, updatedEdges);
+
+    saveDiagram(projectId, {
+      nodes: updatedNodes,
+      edges: updatedEdges,
+    });
   };
 
   const handleShareArchitecture = async () => {
@@ -781,11 +937,12 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
         <NodeSidebar onAddNode={addNode} />
         <div className="flex-1 relative" ref={reactFlowWrapper}>
           <ReactFlow
+            onNodeDragStop={handleNodeDragStop}
             nodes={nodes}
             edges={edges}
             nodeTypes={nodeTypes}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
+            onNodesChange={handleNodesChange}
+            onEdgesChange={handleEdgesChange}
             onConnect={onConnect}
             onNodesDelete={onNodesDelete}
             onEdgesDelete={onEdgesDelete}
