@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 import Container from "./ui/Container";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import {  usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const LINKS = [
   { label: "Features", href: "/#features" },
@@ -19,7 +19,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const { logout } = useAuth();
-  const pathName = usePathname()
+  const pathName = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -27,11 +27,10 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-  
-  if (pathName.startsWith("/projects/")){
+
+  if (pathName.startsWith("/projects/")) {
     return null;
   }
-
 
   return (
     <header
@@ -67,27 +66,23 @@ export default function Navbar() {
           {user ? (
             <div className=" flex gap-4">
               {!pathName.includes("/dashboard") && (
-
                 <Link
-                href="/dashboard"
-                className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+                  href="/dashboard"
+                  className="hidden md:flex rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
                 >
-                Dashboard
-              </Link>
+                  Dashboard
+                </Link>
               )}
 
-            <button
-                onClick={()=> {
-                  logout()
+              <button
+                onClick={() => {
+                  logout();
                 }}
-                className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+                className="hidden md:flex rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
               >
                 Logout
               </button>
-
-
-
-              </div>
+            </div>
           ) : (
             <div className="hidden items-center gap-4 lg:flex">
               <Link
@@ -131,20 +126,52 @@ export default function Navbar() {
               </a>
             ))}
             <div className="mt-2 flex flex-col gap-3 border-t border-[#E7E6E1] pt-4">
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="text-base font-medium text-[#14141A]"
-              >
-                Log in
-              </Link>
-              <Link
-                href="/signup"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-[#4F46E5] px-5 py-2.5 text-center text-sm font-medium text-white"
-              >
-                Get started
-              </Link>
+              {user ? (
+                <div className=" flex gap-4">
+                  {!pathName.includes("/dashboard") && (
+                    <Link
+                      onClick={() => {
+                        setOpen(false);
+                      }}
+                      href="/dashboard"
+                      className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+                    >
+                      Dashboard
+                    </Link>
+                  )}
+                  <button
+                    onClick={() => {
+                      logout();
+                      setOpen(false);
+                    }}
+                    className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-4 ">
+                  <Link
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                    href="/login"
+                    className="rounded-sm text-sm font-medium text-[#5C5C68] transition-colors hover:text-[#14141A] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120"
+                  >
+                    Log in
+                  </Link>
+
+                  <Link
+                    onClick={() => {
+                      setOpen(false);
+                    }}
+                    href="/signup"
+                    className="rounded-full bg-[#4F46E5] px-5 py-2 text-sm font-medium text-white transition-all hover:bg-[#3F37C9] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4F46E5] focus-visible:ring-offset-2 transform transition-transform duration-300 ease-in-out hover:scale-120 text-center"
+                  >
+                    Get started
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

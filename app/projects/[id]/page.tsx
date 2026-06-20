@@ -7,6 +7,7 @@ import ArchitectureEditor from "@/app/components/editor/ArchitectureEditor";
 
 import { getProject, updateProject } from "@/services/projects";
 import { Project } from "@/types/project";
+import DashboardSkeleton from "@/app/components/DashboardSkelton";
 
 export default function ProjectPage() {
   const params = useParams();
@@ -45,7 +46,7 @@ export default function ProjectPage() {
   };
 
   if (!project) {
-    return <div className="p-8">Loading...</div>;
+    return <DashboardSkeleton />;
   }
 
   return (

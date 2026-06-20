@@ -44,6 +44,9 @@ import { ReviewHistoryItem } from "@/types/review";
 import ReviewHistoryPanel from "./ReviewHistoryPanel";
 import { createShareLink } from "@/services/share";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import { MoveLeft } from "lucide-react";
+import Image from "next/image";
 
 interface Props {
   projectId: string;
@@ -56,20 +59,25 @@ interface Props {
 const paths: Record<string, string> = {
   plus: "M12 5v14M5 12h14",
   layout: "M3 3h18v18H3zM3 9h18M9 21V9",
-  image: "M3 3h18v18H3 2zM8.5 8.5m-1.5 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M21 15l-5-5L5 21",
+  image:
+    "M3 3h18v18H3 2zM8.5 8.5m-1.5 0a1.5 1.5 0 1 0 3 0 1.5 1.5 0 1 0-3 0M21 15l-5-5L5 21",
   undo: "M9 14 4 9l5-5M20 20v-7a4 4 0 0 0-4-4H4",
   save: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8",
   markdown: "M3 5h18v14H3zM7 15V9l2 2 2-2v6M17 11h-4m4 4h-4",
   pdf: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6",
-  share: "M18 8A3 3 0 1 0 18 2a3 3 0 0 0 0 6zM6 15A3 3 0 1 0 6 9a3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4",
-  sparkles: "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z",
+  share:
+    "M18 8A3 3 0 1 0 18 2a3 3 0 0 0 0 6zM6 15A3 3 0 1 0 6 9a3 3 0 0 0 0 6zM18 22a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4",
+  sparkles:
+    "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z",
   wand: "M15 4l-1 1M4 15l1-1M9 4l2.5 2.5M4 9l2.5 2.5M2 2l20 20M15 5 5 15l4 4 10-10z",
   star: "M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8l-6.2 3.2L7 14.2 2 9.3l6.9-1z",
   zap: "M13 2 3 14h9l-1 8 10-12h-9z",
   info: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 16v-4M12 8h.01",
-  fileText: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+  fileText:
+    "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
   history: "M1 4v6h6M3.5 15A9 9 0 1 0 4 7.5",
-  messageCircle: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
+  messageCircle:
+    "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
   x: "M18 6 6 18M6 6l12 12",
   check: "M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3",
 };
@@ -105,12 +113,14 @@ const Icon = ({
 ───────────────────────────────────────────── */
 
 // Thin vertical divider for the toolbar
-const Divider = () => (
-  <div className="w-px h-5 bg-gray-200 mx-1 shrink-0" />
-);
+const Divider = () => <div className="w-px h-5 bg-gray-200 mx-1 shrink-0" />;
 
 // Small status badge next to project name
-const StatusBadge = ({ status }: { status: "saved" | "saving" | "unsaved" }) => {
+const StatusBadge = ({
+  status,
+}: {
+  status: "saved" | "saving" | "unsaved";
+}) => {
   const styles = {
     saved: "bg-emerald-50 text-emerald-700 border-emerald-200",
     saving: "bg-amber-50 text-amber-600 border-amber-200",
@@ -163,7 +173,11 @@ const TBtn = ({
       }
     `}
   >
-    <Icon name={loading ? "sparkles" : icon} size={14} className={loading ? "animate-pulse" : ""} />
+    <Icon
+      name={loading ? "sparkles" : icon}
+      size={14}
+      className={loading ? "animate-pulse" : ""}
+    />
     {showLabel && (loading ? (loadingLabel ?? label) : label)}
   </button>
 );
@@ -177,7 +191,14 @@ interface ModalProps {
   width?: "md" | "lg" | "xl";
   children: React.ReactNode;
 }
-const Modal = ({ open, onClose, title, icon, width = "lg", children }: ModalProps) => {
+const Modal = ({
+  open,
+  onClose,
+  title,
+  icon,
+  width = "lg",
+  children,
+}: ModalProps) => {
   if (!open) return null;
   const maxW = { md: "max-w-md", lg: "max-w-2xl", xl: "max-w-4xl" };
   return (
@@ -224,7 +245,9 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
   const [nodeName, setNodeName] = useState("");
   const [saving, setSaving] = useState(false);
   const hasLoaded = useRef(false);
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">(
+    "saved",
+  );
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [documentation, setDocumentation] = useState("");
   const [review, setReview] = useState("");
@@ -239,7 +262,9 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
   const [improvements, setImprovements] = useState<Improvement[]>([]);
   const [improving, setImproving] = useState(false);
   const [reviewHistory, setReviewHistory] = useState<ReviewHistoryItem[]>([]);
-  const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
+  const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>(
+    [],
+  );
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [shareLink, setShareLink] = useState("");
 
@@ -252,7 +277,6 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
   const [shareOpen, setShareOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
-  /* ── all original logic (unchanged) ── */
   const clearAnalysis = () => {
     setDocumentation("");
     setReview("");
@@ -384,7 +408,10 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
   );
 
   const handleAutoArrange = () => {
-    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(nodes, edges);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      nodes,
+      edges,
+    );
     saveSnapshot(nodes, edges);
     setNodes(layoutedNodes);
     setEdges(layoutedEdges);
@@ -414,7 +441,8 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     if (
       nodes.length > 0 &&
       !window.confirm("This will replace the current diagram. Continue?")
-    ) return;
+    )
+      return;
     const template = architectureTemplates.find((t) => t.id === templateId);
     if (!template) return;
     clearAnalysis();
@@ -515,9 +543,15 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       return;
     }
     let content = "";
-    if (documentation) { content += "# Documentation\n\n" + documentation + "\n\n"; }
-    if (explanation)   { content += "# Explanation\n\n"   + explanation   + "\n\n"; }
-    if (review)        { content += "# Review\n\n"        + review        + "\n";   }
+    if (documentation) {
+      content += "# Documentation\n\n" + documentation + "\n\n";
+    }
+    if (explanation) {
+      content += "# Explanation\n\n" + explanation + "\n\n";
+    }
+    if (review) {
+      content += "# Review\n\n" + review + "\n";
+    }
     const blob = new Blob([content], { type: "text/markdown" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -576,7 +610,8 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     const newEdges: Edge[] = [];
     improvement.connect_to.forEach((targetLabel) => {
       const targetNode = nodes.find(
-        (n) => String(n.data?.label).toLowerCase() === targetLabel.toLowerCase(),
+        (n) =>
+          String(n.data?.label).toLowerCase() === targetLabel.toLowerCase(),
       );
       if (targetNode) {
         newEdges.push({
@@ -600,19 +635,18 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
     }
   };
 
-  /* ─────────────────────────────────────────────
-     RENDER
-  ───────────────────────────────────────────── */
+  /* ─────────────────────────────────────────────     RENDER  ───────────────────────────────────────────── */
   return (
     <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-
       {/* ══════════════════ HEADER ══════════════════ */}
       <header className="shrink-0 bg-white border-b border-gray-200 shadow-sm">
-
         {/* Row 1 – branding + node add + save status */}
         <div className="flex items-center gap-3 px-4 py-2.5 border-b border-gray-100">
           {/* Logo */}
           <div className="flex items-center gap-2 shrink-0">
+            <Link href="/">
+              <Image src="/icon-logo.png" alt="Logo" width={50} height={100} />
+            </Link>
             <span className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
               <Icon name="sparkles" size={14} className="text-white" />
             </span>
@@ -634,11 +668,23 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
                          text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-400
                          focus:border-transparent w-36 transition-all"
             />
-            <TBtn onClick={handleAddCustomNode} icon="plus" label="Add Node" primary />
+            <TBtn
+              onClick={handleAddCustomNode}
+              icon="plus"
+              label="Add Node"
+              primary
+            />
           </div>
 
           {/* Save status pushed to right */}
-          <div className="ml-auto">
+          <div className="ml-auto flex space-x-5">
+            <Link
+              href="/dashboard"
+              className="flex border px-2 rounded-lg text-sm items-center hover:text-lg transition-all duration-200 ease-in-out hover:text-gray-500"
+            >
+              {" "}
+              <MoveLeft /> Go to Dashboard
+            </Link>
             <StatusBadge status={saveStatus} />
           </div>
         </div>
@@ -650,9 +696,9 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
         >
           {/* Canvas */}
           <TBtn onClick={handleAutoArrange} icon="layout" label="Arrange" />
-          <TBtn onClick={exportPNG}         icon="image"  label="Export PNG" />
-          <TBtn onClick={undo}              icon="undo"   label="Undo" />
-          <TBtn onClick={handleSave}        icon="save"   label="Save" />
+          <TBtn onClick={exportPNG} icon="image" label="Export PNG" />
+          <TBtn onClick={undo} icon="undo" label="Undo" />
+          <TBtn onClick={handleSave} icon="save" label="Save" />
 
           <Divider />
 
@@ -661,7 +707,9 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
             value={architecturePrompt}
             onChange={(e) => setArchitecturePrompt(e.target.value)}
             onKeyDown={(e) =>
-              e.key === "Enter" && !generatingArchitecture && handleGenerateArchitecture()
+              e.key === "Enter" &&
+              !generatingArchitecture &&
+              handleGenerateArchitecture()
             }
             placeholder="Describe architecture…"
             className="h-7 px-3 text-xs rounded-lg border border-gray-200 bg-gray-50 placeholder-gray-400
@@ -715,9 +763,15 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
           <Divider />
 
           {/* Export + Share */}
-          <TBtn onClick={exportMarkdown}                                         icon="markdown" label="Export MD" />
-          <TBtn onClick={() => exportPDF(projectName, documentation, explanation, review)} icon="pdf"      label="Export PDF" />
-          <TBtn onClick={handleShareArchitecture}                                 icon="share"    label="Share" />
+          <TBtn onClick={exportMarkdown} icon="markdown" label="Export MD" />
+          <TBtn
+            onClick={() =>
+              exportPDF(projectName, documentation, explanation, review)
+            }
+            icon="pdf"
+            label="Export PDF"
+          />
+          <TBtn onClick={handleShareArchitecture} icon="share" label="Share" />
         </div>
       </header>
 
@@ -747,30 +801,66 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       {/* ══════════════════ MODALS ══════════════════ */}
 
       {/* Review */}
-      <Modal open={reviewOpen} onClose={() => setReviewOpen(false)} title="Architecture Review" icon="star" width="xl">
+      <Modal
+        open={reviewOpen}
+        onClose={() => setReviewOpen(false)}
+        title="Architecture Review"
+        icon="star"
+        width="xl"
+      >
         {review ? (
-          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{review}</div>
+          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+            {review}
+          </div>
         ) : (
-          <p className="text-sm text-gray-400 text-center py-10">No review yet. Click "Review" in the toolbar.</p>
+          <p className="text-sm text-gray-400 text-center py-10">
+            No review yet. Click "Review" in the toolbar.
+          </p>
         )}
       </Modal>
 
       {/* Explain */}
-      <Modal open={explainOpen} onClose={() => setExplainOpen(false)} title="Architecture Explanation" icon="info" width="xl">
+      <Modal
+        open={explainOpen}
+        onClose={() => setExplainOpen(false)}
+        title="Architecture Explanation"
+        icon="info"
+        width="xl"
+      >
         {explanation ? (
-          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">{explanation}</div>
+          <div className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+            {explanation}
+          </div>
         ) : (
-          <p className="text-sm text-gray-400 text-center py-10">No explanation yet. Click "Explain" in the toolbar.</p>
+          <p className="text-sm text-gray-400 text-center py-10">
+            No explanation yet. Click "Explain" in the toolbar.
+          </p>
         )}
       </Modal>
 
       {/* Docs */}
-      <Modal open={docsOpen} onClose={() => setDocsOpen(false)} title="Generated Documentation" icon="fileText" width="xl">
-        <DocumentationPanel documentation={documentation} explanation={explanation} review={review} />
+      <Modal
+        open={docsOpen}
+        onClose={() => setDocsOpen(false)}
+        title="Generated Documentation"
+        icon="fileText"
+        width="xl"
+      >
+        <DocumentationPanel
+          documentation={documentation}
+          explanation={explanation}
+          review={review}
+        />
       </Modal>
 
       {/* Improvements */}
-      <Modal open={improvOpen} onClose={() => setImprovOpen(false)} title="Suggested Improvements" icon="zap" width="lg">
+      <Modal
+        open={improvOpen}
+        onClose={() => setImprovOpen(false)}
+        title="Suggested Improvements"
+        icon="zap"
+        width="lg"
+      >
         <ImprovementPanel
           improvements={improvements}
           onAdd={(imp: Improvement) => {
@@ -781,15 +871,29 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
       </Modal>
 
       {/* Review History */}
-      <Modal open={historyOpen} onClose={() => setHistoryOpen(false)} title="Review History" icon="history" width="xl">
+      <Modal
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        title="Review History"
+        icon="history"
+        width="xl"
+      >
         <ReviewHistoryPanel reviews={reviewHistory} />
       </Modal>
 
       {/* Share */}
-      <Modal open={shareOpen} onClose={() => setShareOpen(false)} title="Share Diagram" icon="share" width="md">
+      <Modal
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title="Share Diagram"
+        icon="share"
+        width="md"
+      >
         {shareLink ? (
           <div className="space-y-3">
-            <p className="text-xs text-gray-500">Anyone with this link can view the diagram.</p>
+            <p className="text-xs text-gray-500">
+              Anyone with this link can view the diagram.
+            </p>
             <div className="flex items-center gap-2">
               <input
                 value={shareLink}
@@ -810,13 +914,14 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
             </div>
           </div>
         ) : (
-          <p className="text-sm text-gray-400 text-center py-8">Generating share link…</p>
+          <p className="text-sm text-gray-400 text-center py-8">
+            Generating share link…
+          </p>
         )}
       </Modal>
 
       {/* ══════════════════ FLOATING CHAT ══════════════════ */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-
         {/* Chat popup */}
         {chatOpen && (
           <div
@@ -830,7 +935,9 @@ export default function ArchitectureEditor({ projectId, projectName }: Props) {
                 <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
                   <Icon name="sparkles" size={12} className="text-white" />
                 </span>
-                <span className="text-sm font-semibold text-white">AI Assistant</span>
+                <span className="text-sm font-semibold text-white">
+                  AI Assistant
+                </span>
               </div>
               <button
                 onClick={() => setChatOpen(false)}

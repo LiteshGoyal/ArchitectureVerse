@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { useAuth } from "@/context/AuthContext";
+import DashboardSkeleton from "../DashboardSkelton";
 
 interface Props {
   children: React.ReactNode;
@@ -24,9 +25,7 @@ export default function ProtectedRoute({ children }: Props) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        Loading...
-      </div>
+      <DashboardSkeleton />
     );
   }
 

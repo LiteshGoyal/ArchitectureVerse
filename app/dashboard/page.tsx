@@ -9,6 +9,7 @@ import { Project } from "@/types/project";
 import ProtectedRoute from "../components/auth/ProtectedRoute";
 import { Trash, MoveRight } from "lucide-react";
 import toast from "react-hot-toast";
+import DashboardSkeleton from "../components/DashboardSkelton";
 
 
 
@@ -58,7 +59,7 @@ export default function Dashboard() {
   };
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <DashboardSkeleton />;
   }
 
   return (
