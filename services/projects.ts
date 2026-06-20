@@ -35,3 +35,15 @@ export const updateProject = async (projectId: string,data:{
 };
 
 
+export const inviteCollaborator = async(projectId:string, email:string)=>{
+  const response = await api.post(`/projects/${projectId}/invite/`,{email})
+  return response.data
+}
+export const getCollaborators = async(projectId:string)=>{
+  const response = await api.get(`/projects/${projectId}/collaborators/`,)
+  return response.data
+}
+export const removeCollaborator = async(projectId:string, userId:number)=>{
+  const response = await api.delete(`/projects/${projectId}/collaborators/${userId}/`,)
+  return response.data
+}

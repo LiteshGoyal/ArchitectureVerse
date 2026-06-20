@@ -8,6 +8,15 @@ import ArchitectureEditor from "@/app/components/editor/ArchitectureEditor";
 import { getProject, updateProject } from "@/services/projects";
 import { Project } from "@/types/project";
 import DashboardSkeleton from "@/app/components/DashboardSkelton";
+import {
+  inviteCollaborator,
+  getCollaborators,
+  removeCollaborator,
+} from "@/services/projects";
+
+import { Collaborator } from "@/types/collaborator";
+
+import toast from "react-hot-toast";
 
 export default function ProjectPage() {
   const params = useParams();
@@ -16,6 +25,8 @@ export default function ProjectPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [email, setEmail] = useState("");
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
 
   const fetchProject = async () => {
     try {
@@ -30,7 +41,53 @@ export default function ProjectPage() {
   };
   useEffect(() => {
     fetchProject();
+    fetchCollaborators();
   }, []);
+
+  const fetchCollaborators = async () => {
+    try {
+      const data = await getCollaborators(params.id as string);
+
+      setCollaborators(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleInvite = async () => {
+    try {
+      if (!email) {
+        toast.error("Please enter email");
+        return;
+      }
+
+      await inviteCollaborator(params.id as string, email);
+
+      toast.success("Collaborator added");
+
+      setEmail("");
+
+      fetchCollaborators();
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Failed to invite");
+    }
+  };
+
+  const handleRemove = async (userId: number) => {
+    try {
+      await removeCollaborator(params.id as string, userId);
+
+      toast.success("Collaborator removed");
+
+      fetchCollaborators();
+    } catch (error) {
+      console.error(error);
+
+      toast.error("Failed to remove");
+    }
+  };
 
   const handleUpdateProject = async () => {
     try {
@@ -51,8 +108,7 @@ export default function ProjectPage() {
 
   return (
     <div className="h-screen flex flex-col">
-
-        {/* {isEditing ? (
+      {/* {isEditing ? (
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -72,9 +128,7 @@ export default function ProjectPage() {
           <p className="text-gray-600 mt-1">{project.description}</p>
         )} */}
 
-
-
-        {/* <div className="mt-4 flex gap-2">
+      {/* <div className="mt-4 flex gap-2">
           {isEditing ? (
             <button onClick={handleUpdateProject} className="border px-4 py-2">
               Save Project
@@ -89,8 +143,52 @@ export default function ProjectPage() {
           )}
         </div> */}
 
+      <div className="border-b p-4 bg-white">
+        <h2 className="font-semibold text-lg">Collaborators</h2>
+
+        <div className="flex gap-2 mt-2">
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email"
+            className="border px-3 py-2"
+          />
+
+          <button onClick={handleInvite} className="border px-4 py-2">
+            Invite
+          </button>
+        </div>
+
+        <div className="mt-3">
+          {collaborators.map((collaborator) => (
+            <div
+              key={collaborator.id}
+              className="flex justify-between border-b py-2"
+            >
+              <div>
+                <div>{collaborator.username}</div>
+
+                <div className="text-sm text-gray-500">
+                  {collaborator.email}
+                </div>
+              </div>
+
+              <button
+                onClick={() => handleRemove(collaborator.id)}
+                className="text-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="flex-1">
-        <ArchitectureEditor projectId={params.id as string} projectName={project.name}/>
+        <ArchitectureEditor
+          projectId={params.id as string}
+          projectName={project.name}
+        />
       </div>
     </div>
   );
